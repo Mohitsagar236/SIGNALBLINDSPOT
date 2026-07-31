@@ -1,0 +1,4 @@
+user_id,account_id,role,segment,region,language,plan,tenure_months,activity_level,accessibility_need,churn_status
+U-0001,A-001,Operator,SMB,India,Hindi,Starter,4,Medium,None,Active
+U-0002,A-002,Admin,Enterprise,US,English,Enterprise,26,Power User,None,Active
+U-0003,A-003,External Collaborator,Mid-Market,Europe,German,Business,12,Low,Visual,At Risk

@@ -1,0 +1,4 @@
+account_id,company_name,segment,arr,plan,region,industry
+A-001,Atlas Systems,SMB,12000,Starter,India,SaaS
+A-002,Nova Group,Enterprise,240000,Enterprise,US,Fintech
+A-003,Summit Works,Mid-Market,76000,Business,Europe,Manufacturing

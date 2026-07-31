@@ -1,0 +1,4 @@
+roadmap_item_id,title,description,product_area,priority,status,decision_date,owner,target_segment
+R-001,Redesign Admin Dashboard,"Modernize admin reporting and controls.",Administration,High,Evidence Review,2026-08-20,Priya Shah,Admin
+R-002,Improve Mobile Workflow Completion,"Reduce drop-off for field mobile workflows.",Mobile,High,Research Gap Identified,2026-08-27,Jordan Lee,Operator
+R-003,Bulk Account Permissions,"Reduce repetitive admin setup work.",Administration,Medium,Draft,2026-09-03,Priya Shah,Enterprise

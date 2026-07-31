@@ -1,0 +1,4 @@
+interview_id,user_id,researcher,topic,date,notes,linked_roadmap_item
+I-0001,U-0002,Maya Chen,Admin dashboard,2026-07-06,"Admin needs faster visibility into account health.",roadmap-admin-dashboard
+I-0002,U-0001,Sam Rivera,Mobile workflow,2026-07-08,"Operator loses context when switching mobile tasks.",roadmap-mobile-workflow
+I-0003,U-0003,Anika Rao,Collaboration,2026-06-29,"External collaborator needs simpler review links.",

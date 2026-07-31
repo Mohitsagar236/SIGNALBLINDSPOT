@@ -1,0 +1,4 @@
+feedback_id,user_id,account_id,source,feedback_text,topic,sentiment,created_at,linked_roadmap_item,severity,revenue_weight
+F-00001,U-0002,A-002,Customer interview,"Admins want a faster dashboard for executive reporting.",Admin dashboard,Negative,2026-07-02,roadmap-admin-dashboard,High,2.2
+F-00002,U-0001,A-001,App feedback,"Mobile workflow is slow during field updates.",Mobile workflow,Negative,2026-07-05,roadmap-mobile-workflow,High,0.8
+F-00003,U-0003,A-003,Usability test,"External collaborators cannot complete approval handoffs.",Collaboration,Neutral,2026-06-21,,Medium,1.2

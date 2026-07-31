@@ -1,0 +1,328 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+  accounts    Account[]
+  endUsers    EndUser[]
+  feedback    Feedback[]
+  interviews  Interview[]
+  roadmap     RoadmapItem[]
+  segments    SegmentDefinition[]
+  scores      CoverageScore[]
+  blindSpots  BlindSpot[]
+  recs        ResearchRecommendation[]
+  reports     DecisionReport[]
+  settings    ScoringSetting?
+  importBatches ImportBatch[]
+}
+
+model User {
+  id             String       @id @default(cuid())
+  name           String
+  email          String       @unique
+  passwordHash   String
+  role           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  linkedEvidence RoadmapEvidenceLink[]
+  ownedBlindSpots BlindSpot[] @relation("BlindSpotOwner")
+  ownedRecommendations ResearchRecommendation[] @relation("RecommendationOwner")
+  createdReports DecisionReport[]
+  decisionNotes DecisionNote[]
+}
+
+model Account {
+  id                String       @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  externalAccountId String
+  companyName       String
+  segment           String
+  arr               Int
+  plan              String
+  region            String
+  industry          String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  endUsers          EndUser[]
+  feedback          Feedback[]
+
+  @@unique([organizationId, externalAccountId])
+  @@index([organizationId, segment])
+}
+
+model EndUser {
+  id                String       @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  externalUserId    String
+  accountId         String?
+  account           Account?     @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  role              String
+  segment           String
+  region            String
+  language          String
+  plan              String
+  tenureMonths      Int
+  activityLevel     String
+  accessibilityNeed String
+  churnStatus       String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  feedback          Feedback[]
+  interviews        Interview[]
+
+  @@unique([organizationId, externalUserId])
+  @@index([organizationId, role])
+  @@index([organizationId, segment])
+}
+
+model Feedback {
+  id                 String       @id @default(cuid())
+  organizationId     String
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  externalFeedbackId String
+  userId             String?
+  user               EndUser?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  accountId          String?
+  account            Account?     @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  source             String
+  feedbackText       String
+  topic              String
+  sentiment          String
+  createdAtSource    DateTime
+  severity           String
+  revenueWeight      Float
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  evidenceLinks      RoadmapEvidenceLink[]
+
+  @@unique([organizationId, externalFeedbackId])
+  @@index([organizationId, topic])
+}
+
+model Interview {
+  id                  String       @id @default(cuid())
+  organizationId      String
+  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  externalInterviewId String
+  userId              String?
+  user                EndUser?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  researcher          String
+  topic               String
+  interviewDate       DateTime
+  notes               String
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  evidenceLinks       RoadmapEvidenceLink[]
+
+  @@unique([organizationId, externalInterviewId])
+  @@index([organizationId, topic])
+}
+
+model RoadmapItem {
+  id                    String       @id @default(cuid())
+  organizationId        String
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  externalRoadmapItemId String
+  title                 String
+  description           String
+  productArea           String
+  priority              String
+  status                String
+  decisionDate          DateTime
+  owner                 String
+  targetSegment         String
+  evidenceCoverageScore Float?
+  decisionConfidence    String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  evidenceLinks         RoadmapEvidenceLink[]
+  coverageScores        CoverageScore[]
+  blindSpots            BlindSpot[]
+  recommendations       ResearchRecommendation[]
+  reports               DecisionReport[]
+  decisionNotes         DecisionNote[]
+
+  @@unique([organizationId, externalRoadmapItemId])
+  @@index([organizationId, status])
+}
+
+model RoadmapEvidenceLink {
+  id             String      @id @default(cuid())
+  organizationId String
+  roadmapItemId String
+  roadmapItem   RoadmapItem @relation(fields: [roadmapItemId], references: [id], onDelete: Cascade)
+  evidenceType  String
+  feedbackId    String?
+  feedback      Feedback?   @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  interviewId   String?
+  interview     Interview?  @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  linkReason    String
+  linkedById    String?
+  linkedBy      User?       @relation(fields: [linkedById], references: [id], onDelete: SetNull)
+  confidence    String
+  notes         String?
+  createdAt     DateTime    @default(now())
+
+  @@index([organizationId, roadmapItemId])
+}
+
+model SegmentDefinition {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  dimension      String
+  operator       String
+  value          String
+  description    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model CoverageScore {
+  id                                      String       @id @default(cuid())
+  organizationId                          String
+  organization                            Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  roadmapItemId                           String
+  roadmapItem                             RoadmapItem  @relation(fields: [roadmapItemId], references: [id], onDelete: Cascade)
+  overallScore                            Float
+  evidenceQuantityScore                   Float
+  segmentRepresentationScore              Float
+  sourceDiversityScore                    Float
+  recencyScore                            Float
+  targetSegmentCoverageScore              Float
+  churnedUserInclusionScore               Float
+  accessibilityLanguageInclusionScore     Float
+  confidenceLabel                         String
+  explanation                             String
+  scoreBreakdown                          Json
+  createdAt                               DateTime     @default(now())
+}
+
+model BlindSpot {
+  id                           String       @id @default(cuid())
+  organizationId               String
+  organization                 Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  roadmapItemId                String
+  roadmapItem                  RoadmapItem  @relation(fields: [roadmapItemId], references: [id], onDelete: Cascade)
+  type                         String
+  severity                     String
+  explanation                  String
+  affectedSegment              String
+  actualPopulationPercentage   Float
+  evidencePopulationPercentage Float
+  representationGap            Float
+  recommendedAction            String
+  status                       String
+  ownerId                      String?
+  owner                        User?        @relation("BlindSpotOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  resolutionNotes              String?
+  createdAt                    DateTime     @default(now())
+  updatedAt                    DateTime     @updatedAt
+  recommendations              ResearchRecommendation[]
+}
+
+model ResearchRecommendation {
+  id                      String       @id @default(cuid())
+  organizationId          String
+  organization            Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  roadmapItemId           String
+  roadmapItem             RoadmapItem  @relation(fields: [roadmapItemId], references: [id], onDelete: Cascade)
+  blindSpotId             String?
+  blindSpot               BlindSpot?   @relation(fields: [blindSpotId], references: [id], onDelete: SetNull)
+  title                   String
+  explanation             String
+  recommendedSegment      String
+  suggestedSampleSize     Int
+  suggestedResearchMethod String
+  priority                String
+  expectedImpact          String
+  status                  String
+  ownerId                 String?
+  owner                   User?        @relation("RecommendationOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  notes                   String?
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+}
+
+model DecisionReport {
+  id                     String       @id @default(cuid())
+  organizationId         String
+  organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  roadmapItemId          String
+  roadmapItem            RoadmapItem  @relation(fields: [roadmapItemId], references: [id], onDelete: Cascade)
+  title                  String
+  markdownContent        String
+  decisionRecommendation String
+  createdById            String?
+  createdBy              User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+}
+
+model ScoringSetting {
+  id                                    String       @id @default(cuid())
+  organizationId                        String       @unique
+  organization                          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  evidenceQuantityWeight                Float
+  segmentRepresentationWeight           Float
+  sourceDiversityWeight                 Float
+  recencyWeight                         Float
+  targetSegmentCoverageWeight           Float
+  churnedUserInclusionWeight            Float
+  accessibilityLanguageInclusionWeight  Float
+  minimumEvidenceThreshold              Int
+  recencyThresholdDays                  Int
+  updatedAt                             DateTime     @updatedAt
+}
+
+model DecisionNote {
+  id             String      @id @default(cuid())
+  organizationId String
+  roadmapItemId String
+  roadmapItem   RoadmapItem @relation(fields: [roadmapItemId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  note           String
+  createdAt      DateTime   @default(now())
+}
+
+model ImportBatch {
+  id              String       @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type            String
+  filename        String
+  status          String
+  totalRows       Int
+  successfulRows  Int
+  failedRows      Int
+  createdAt       DateTime     @default(now())
+  errors          ImportError[]
+}
+
+model ImportError {
+  id            String      @id @default(cuid())
+  importBatchId String
+  importBatch   ImportBatch @relation(fields: [importBatchId], references: [id], onDelete: Cascade)
+  rowNumber     Int
+  field         String
+  message       String
+  rawData       Json
+  createdAt     DateTime    @default(now())
+}
